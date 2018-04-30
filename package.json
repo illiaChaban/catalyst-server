@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "pg-promise": "^8.4.0"
+  }
+}
