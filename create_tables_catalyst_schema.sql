@@ -1,9 +1,10 @@
 
 CREATE TABLE users (
-    userid text NOT NULL UNIQUE,
     avatar text,
     username text,
-    jwtpassword text
+    email text,
+    passw text,
+    userid SERIAL UNIQUE
 );
 
 CREATE TABLE friends (
@@ -11,14 +12,14 @@ CREATE TABLE friends (
     friendsarray text
 );
 
-CREATE TABLE goals (
+CREATE TABLE goals (  
     userid text NOT NULL,
-    goalid text NOT NULL UNIQUE,
     goalname text,
     description text,
     deadline DATE,
     created DATE,
-    punishment text    
+    punishment text,
+    goalid SERIAL UNIQUE    
 );
 
 CREATE TABLE checkins (
@@ -37,51 +38,50 @@ CREATE TABLE comments (
 
 INSERT INTO users VALUES 
     (
-        '1111',
         'https://www.templateplazza.com/templates/nutp/images/man.png',
         'illia',
+        'illia@gmail.com',
         '1111'
     );
 
 INSERT INTO users VALUES 
     (
-        '1112',
         'https://www.templateplazza.com/templates/nutp/images/man.png',
         'aaron',
+        'aaron@gmail.com',
         '1111'
     );
 
 INSERT INTO users VALUES 
     (
-        '1113',
         'https://www.templateplazza.com/templates/nutp/images/man.png',
         'itzik',
+        'itzik@gmail.com',
         '1111'
     );
 
 
 INSERT INTO friends VALUES
     (
-        '1111',
-        '["1112", "1113"]'
+        '1',
+        '["2", "3"]'
     );
 
 INSERT INTO friends VALUES
     (
-        '1112',
-        '["1113"]'
+        '2',
+        '["3"]'
     );
 
 INSERT INTO friends VALUES
     (
-        '1113',
-        '["1111"]'
+        '3',
+        '["1"]'
     );
 
 INSERT INTO goals VALUES
     (
-        '1111',
-        '2222',
+        '1',
         'squat 300 lb',
         'being able to ATG squat 300 lb per rep',
         '2018-06-01',
@@ -91,8 +91,7 @@ INSERT INTO goals VALUES
 
 INSERT INTO goals VALUES
     (
-        '1111',
-        '2223',
+        '1',
         'learn to dance',
         'go to club and dance like a beast',
         '2018-07-05',
@@ -102,8 +101,7 @@ INSERT INTO goals VALUES
 
 INSERT INTO goals VALUES
     (
-        '1112',
-        '2224',
+        '2',
         'start having a normal lunch',
         'not a chocolate milk',
         '2018-05-03',
@@ -113,8 +111,7 @@ INSERT INTO goals VALUES
 
 INSERT INTO goals VALUES
     (
-        '1113',
-        '2225',
+        '3',
         'make aaron drink chocolate milk for a lunch',
         'so that he would buy sushi for everyone',
         '2018-05-02',
@@ -124,7 +121,7 @@ INSERT INTO goals VALUES
 
 INSERT INTO checkins VALUES
     (
-        '2222',
+        '1',
         '',
         'squated 250 lb ATG',
         '2018-05-01'
@@ -132,7 +129,7 @@ INSERT INTO checkins VALUES
 
 INSERT INTO checkins VALUES
     (
-        '2222',
+        '1',
         '',
         'squated 240 lb ATG',
         '2018-04-21'
@@ -140,7 +137,7 @@ INSERT INTO checkins VALUES
 
 INSERT INTO checkins VALUES
     (
-        '2222',
+        '1',
         '',
         'squated 220 lb ATG',
         '2018-04-05'
@@ -148,7 +145,7 @@ INSERT INTO checkins VALUES
 
 INSERT INTO checkins VALUES
     (
-        '2223',
+        '2',
         '',
         'aaron noticed that I move very good',
         '2018-05-01'
@@ -156,7 +153,7 @@ INSERT INTO checkins VALUES
 
 INSERT INTO checkins VALUES
     (
-        '2224',
+        '3',
         '',
         'i forgot my chocolate milk at home',
         '2018-05-01'
@@ -164,7 +161,7 @@ INSERT INTO checkins VALUES
 
 INSERT INTO checkins VALUES
     (
-        '2224',
+        '3',
         '',
         'it doesnt count today, I was stressed out',
         '2018-04-30'
@@ -172,7 +169,7 @@ INSERT INTO checkins VALUES
 
 INSERT INTO checkins VALUES
     (
-        '2225',
+        '4',
         '',
         'bought a chocolate milk for aaron',
         '2018-05-01'
@@ -180,32 +177,32 @@ INSERT INTO checkins VALUES
 
 INSERT INTO comments VALUES
     (
-        '2222',
-        '1112',
+        '1',
+        '2',
         '2018-04-25',
         'I could never squat so much, I envy you'
     );
 
 INSERT INTO comments VALUES
     (
-        '2222',
-        '1113',
+        '1',
+        '3',
         '2018-04-15',
         'bro, my 8 y. o. sister squats more than you'
     );
 
 INSERT INTO comments VALUES
     (
-        '2225',
-        '1111',
+        '4',
+        '1',
         '2018-05-01',
         'keep it up, itzik'
     );
 
 INSERT INTO comments VALUES
     (
-        '2224',
-        '1113',
+        '3',
+        '3',
         '2018-05-01',
         'want some chocolate milk, aaron?'
     );
