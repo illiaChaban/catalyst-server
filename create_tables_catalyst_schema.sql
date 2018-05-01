@@ -15,7 +15,7 @@ CREATE TABLE goals (
     userid text NOT NULL,
     goalid text NOT NULL UNIQUE,
     goalname text,
-    descrip text,
+    description text,
     deadline DATE,
     created DATE,
     punishment text    
