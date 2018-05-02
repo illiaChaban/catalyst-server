@@ -8,12 +8,12 @@ CREATE TABLE users (
 );
 
 CREATE TABLE friends (
-    userid text NOT NULL,
+    userid SERIAL,
     friendsarray text
 );
 
 CREATE TABLE goals (  
-    userid text NOT NULL,
+    userid SERIAL,
     goalname text,
     description text,
     deadline DATE,
@@ -23,15 +23,15 @@ CREATE TABLE goals (
 );
 
 CREATE TABLE checkins (
-    goalid text NOT NULL,
+    goalid SERIAL,
     image text,
     description text,
     created DATE
 );
 
 CREATE TABLE comments (
-    goalid text NOT NULL,
-    userid text NOT NULL,
+    goalid SERIAL,
+    userid SERIAL,
     created DATE,
     comment text
 );

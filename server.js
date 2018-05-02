@@ -58,35 +58,28 @@ router.post('/goals', (req,res) => {
     });
 })
 
-router.post('/feed', (req,res) => {
-    let feed = [];
-    readBody(req)
-        .then( req => JSON.parse(req))
-        .then( req => {
-        console.log(req.userid)
-        db.query(`
-            SELECT friendsarray FROM friends WHERE
-                userid = '${req.userid}';
-        `).then(res => JSON.parse(res[0].friendsarray))
-        .then(arr =>{
-            arr.forEach( (el,i) => {
-                db.query(`
-                    SELECT * FROM goals WHERE
-                        userid = '${el}';
-                `).then(res => res[0].goalid)
-                    .then(goalid => {
-                        db.query(`
-                            SELECT * FROM checkins WHERE
-                                goalid = '${goalid}';
-                        `).then(checkin => {
-                            feed.push(checkin[0])
-                            if ( i === arr.length - 1) res.send(JSON.stringify(feed))
-                        })
-                    })
-            })
-        })
-        
+router.post('/feed', async (req,res) => {
+    let friendsArr = await readBody(req).then( req => JSON.parse(req));
+    
+    let query = '';
+    friendsArr.forEach( (friendId, i) => {
+        query += `users.userid = '${friendId}' `;
+        if ( i !== friendsArr.length - 1) query += 'OR ';
     })
+
+    let feed = await db.query(`
+        SELECT goals.goalname, goals.deadline,
+        users.username, users.avatar,
+        checkins.image, checkins.description, checkins.created
+        FROM goals
+            JOIN users
+                ON users.userid = goals.userid
+            JOIN checkins
+                ON goals.goalid = checkins.goalid
+            WHERE ${query};
+    `)
+
+    res.end(JSON.stringify(feed));
 })
 
 const app = express();
