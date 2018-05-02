@@ -7,6 +7,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const moment = require('moment');
 let postTokens = require('./lib/tokens');
+const bodyParser = require('body-parser')
 // const urlencoded = require('body-parser').urlencoded;
 
 // const dbConfig = 'postgres://illia_chaban@localhost:5432/catalyst';
@@ -15,12 +16,13 @@ const dbConfig = {
     host: 'localhost',
     port: 5432,
     database: 'catalyst',
-    user: 'illia_chaban',
+    user: 'aarongross',
 };
 const db = pg(dbConfig);
 
 const Router = require('express').Router;
 const router = new Router();
+router.use(bodyParser.urlencoded({ extended: true }))
 
 router.get('/', (req, res) => {
     res.send('hello');
@@ -39,6 +41,27 @@ router.post('/users', (req, res) => {
 
 router.post('/login', async (req,res) => {
     postTokens(req, res, db)
+})
+
+router.post('/register',  (req,res) => {
+    let {avatar, username,email,passw} = req.body
+    bcrypt.hash(passw,10,  (err, hash) => {
+        let hashUser = {
+            avatar,
+            username,
+            email,
+            passw:hash
+        }
+        db.query(`INSERT INTO users VALUES 
+    (
+        ${hashUser.avatar},
+        ${hashUser.username},
+        ${hashUser.email},
+        ${hashUser.passw}
+    );`)
+        console.log(hashUser)
+       
+    })
 
 })
 
