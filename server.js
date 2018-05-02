@@ -6,18 +6,16 @@ const readBody = require('./lib/readBody')
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const moment = require('moment');
+let postTokens = require('./lib/tokens');
 // const urlencoded = require('body-parser').urlencoded;
 
 // const dbConfig = 'postgres://illia_chaban@localhost:5432/catalyst';
-
-const signature = '1mm@_s5cur5_s11rv3r';
 
 const dbConfig = {
     host: 'localhost',
     port: 5432,
     database: 'catalyst',
     user: 'illia_chaban',
-    // password: 'user-password'
 };
 const db = pg(dbConfig);
 
@@ -39,8 +37,8 @@ router.post('/users', (req, res) => {
     // res.send('hello')
 })
 
-router.post('/login', (req,res) => {
-    readBody(req).then(console.log)
+router.post('/login', async (req,res) => {
+    postTokens(req, res, db)
 
 })
 
