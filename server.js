@@ -6,7 +6,7 @@ const readBody = require('./lib/readBody')
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const moment = require('moment');
-let postTokens = require('./lib/tokens');
+let {postTokens, signature} = require('./lib/tokens');
 // const urlencoded = require('body-parser').urlencoded;
 
 // const dbConfig = 'postgres://illia_chaban@localhost:5432/catalyst';
@@ -80,6 +80,20 @@ router.post('/feed', async (req,res) => {
     `)
 
     res.end(JSON.stringify(feed));
+})
+
+router.get('/user/me', async (req,res) => {
+    let { authorization: token } = req.headers;
+    try{
+        let payload = jwt.verify(token, signature);
+        let me = await db.one(`
+            SELECT username, userid, avatar FROM users
+            WHERE userid = '${payload.userid}';
+        `)
+        res.end(JSON.stringify(me))
+    } catch(err) {
+        console.log(err)
+    }
 })
 
 const app = express();
