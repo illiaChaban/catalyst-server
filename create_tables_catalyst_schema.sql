@@ -41,7 +41,7 @@ INSERT INTO users VALUES
         'https://www.templateplazza.com/templates/nutp/images/man.png',
         'illia',
         'illia@gmail.com',
-        '1111'
+        '$2b$10$3AooIvGRUKgfjRZLOLV3i.Kb/6ZmOfFA58MLrwkp33swUEKDlNiA2'
     );
 
 INSERT INTO users VALUES 
@@ -49,7 +49,7 @@ INSERT INTO users VALUES
         'https://www.templateplazza.com/templates/nutp/images/man.png',
         'aaron',
         'aaron@gmail.com',
-        '1111'
+        '$2b$10$3AooIvGRUKgfjRZLOLV3i.Kb/6ZmOfFA58MLrwkp33swUEKDlNiA2'
     );
 
 INSERT INTO users VALUES 
@@ -57,7 +57,7 @@ INSERT INTO users VALUES
         'https://www.templateplazza.com/templates/nutp/images/man.png',
         'itzik',
         'itzik@gmail.com',
-        '1111'
+        '$2b$10$3AooIvGRUKgfjRZLOLV3i.Kb/6ZmOfFA58MLrwkp33swUEKDlNiA2'
     );
 
 
