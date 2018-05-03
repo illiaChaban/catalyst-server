@@ -4,7 +4,6 @@ const cors = require('cors');
 let router = require('./router');
 // const urlencoded = require('body-parser').urlencoded;
 
-
 const app = express();
 // app.use(urlencoded({ extended: false }));
 app.use(cors());
