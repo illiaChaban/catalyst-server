@@ -76,7 +76,8 @@ router.post('/feed', async (req,res) => {
                 ON users.userid = goals.userid
             JOIN checkins
                 ON goals.goalid = checkins.goalid
-            WHERE ${query};
+            WHERE ${query}
+            ORDER BY checkins.created DESC;
     `)
 
     res.end(JSON.stringify(feed));
