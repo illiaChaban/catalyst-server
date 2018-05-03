@@ -28,18 +28,19 @@ router.post('/login', async (req,res) => {
 })
 
 router.post('/goals', (req,res) => {
-    readBody(req).then( goal => {
-        console.log(goal);
+    readBody(req).then( goal1 => {
+        goal = JSON.parse(goal1)
         db.query(`
             INSERT INTO goals VALUES (
-                ${goal.user.userid},
-                ${goal.titla},
-                ${goal.description},
-                ${goal.deadline},
-                ${moment().format('L')},
-                ${goal.punishment}
+                '${goal.userid}',
+                '${goal.title}',
+                '${goal.description}',
+                '${goal.deadline}',
+                '${moment().format('L')}',
+                '${goal.punishment}'
             );
         `)
+        // .catch(error)
     });
 })
 
@@ -103,6 +104,18 @@ router.get('/getCheckins', (req,res) => {
         .then(checkin => {
             console.log(checkin); // printing the checkin
             res.send(checkin);
+
+        })
+        .catch(error => {
+           console.log(error); 
+        });
+})
+
+router.get('/getGoals', (req,res) => { 
+    db.query(`SELECT goalname FROM goals;`)
+        .then(goal => {
+            console.log(goal); // printing the goal
+            res.send(goal);
 
         })
         .catch(error => {
