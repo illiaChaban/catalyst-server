@@ -7,7 +7,6 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const moment = require('moment');
 let postTokens = require('./lib/tokens');
-const bodyParser = require('body-parser')
 // const urlencoded = require('body-parser').urlencoded;
 
 // const dbConfig = 'postgres://illia_chaban@localhost:5432/catalyst';
@@ -22,7 +21,6 @@ const db = pg(dbConfig);
 
 const Router = require('express').Router;
 const router = new Router();
-router.use(bodyParser.urlencoded({ extended: true }))
 
 router.get('/', (req, res) => {
     res.send('hello');
@@ -44,8 +42,11 @@ router.post('/login', async (req,res) => {
 })
 
 router.post('/register',  (req,res) => {
-    let {avatar, username,email,passw} = req.body
-    bcrypt.hash(passw,10,  (err, hash) => {
+    readBody(req)
+    .then(data => JSON.parse(data))
+    .then(parsedData => {
+    let {avatar, username,email,passw} = parsedData
+    bcrypt.hash(passw,10, async (err, hash,) => {
         let hashUser = {
             avatar,
             username,
@@ -54,15 +55,15 @@ router.post('/register',  (req,res) => {
         }
         db.query(`INSERT INTO users VALUES 
     (
-        ${hashUser.avatar},
-        ${hashUser.username},
-        ${hashUser.email},
-        ${hashUser.passw}
-    );`)
-        console.log(hashUser)
-       
+        '${hashUser.avatar}',
+        '${hashUser.username}',
+        '${hashUser.email}',
+        '${hashUser.passw}'
+    );`) 
+        .catch(err => console.log(err))
+        res.send('finished insert')
     })
-
+})
 })
 
 router.post('/goals', (req,res) => {
