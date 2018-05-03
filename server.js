@@ -93,6 +93,7 @@ router.get('/user/me', async (req,res) => {
         res.end(JSON.stringify(me))
     } catch(err) {
         console.log(err)
+        res.status(401).end('Unauthorized');
     }
 })
 
