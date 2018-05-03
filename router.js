@@ -110,4 +110,16 @@ router.get('/getCheckins', (req,res) => {
         });
 })
 
+router.get('/getGoals', (req,res) => { 
+    db.query(`SELECT goalname FROM goals;`)
+        .then(goal => {
+            console.log(goal); // printing the goal
+            res.send(goal);
+
+        })
+        .catch(error => {
+           console.log(error); 
+        });
+})
+
 module.exports = router;
