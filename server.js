@@ -15,7 +15,7 @@ const dbConfig = {
     host: 'localhost',
     port: 5432,
     database: 'catalyst',
-    user: 'illia_chaban',
+    user: 'aarongross',
 };
 const db = pg(dbConfig);
 
@@ -39,7 +39,31 @@ router.post('/users', (req, res) => {
 
 router.post('/login', async (req,res) => {
     postTokens(req, res, db)
+})
 
+router.post('/register',  (req,res) => {
+    readBody(req)
+    .then(data => JSON.parse(data))
+    .then(parsedData => {
+    let {avatar, username,email,passw} = parsedData
+    bcrypt.hash(passw,10, async (err, hash,) => {
+        let hashUser = {
+            avatar,
+            username,
+            email,
+            passw:hash
+        }
+        db.query(`INSERT INTO users VALUES 
+    (
+        '${hashUser.avatar}',
+        '${hashUser.username}',
+        '${hashUser.email}',
+        '${hashUser.passw}'
+    );`) 
+        .catch(err => console.log(err))
+        res.send('finished insert')
+    })
+})
 })
 
 router.post('/goals', (req,res) => {
