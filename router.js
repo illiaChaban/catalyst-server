@@ -28,18 +28,19 @@ router.post('/login', async (req,res) => {
 })
 
 router.post('/goals', (req,res) => {
-    readBody(req).then( goal => {
-        console.log(goal);
+    readBody(req).then( goal1 => {
+        goal = JSON.parse(goal1)
         db.query(`
             INSERT INTO goals VALUES (
-                ${goal.user.userid},
-                ${goal.titla},
-                ${goal.description},
-                ${goal.deadline},
-                ${moment().format('L')},
-                ${goal.punishment}
+                '${goal.userid}',
+                '${goal.title}',
+                '${goal.description}',
+                '${goal.deadline}',
+                '${moment().format('L')}',
+                '${goal.punishment}'
             );
         `)
+        // .catch(error)
     });
 })
 
