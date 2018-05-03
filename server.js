@@ -58,6 +58,21 @@ router.post('/goals', (req,res) => {
     });
 })
 
+router.get('/friends', async (req, res) => {
+    let { authorization: token } = req.headers;
+    try{
+        let { userid } = jwt.verify(token, signature);
+        console.log(userid)
+        let friends = await db.one(`
+            SELECT friendsarray FROM friends
+            WHERE userid = '${userid}';
+        `)
+        res.end(friends.friendsarray)
+    } catch(err) {
+        console.log(err)
+    }
+})
+
 router.post('/feed', async (req,res) => {
     let friendsArr = await readBody(req).then( req => JSON.parse(req));
     
