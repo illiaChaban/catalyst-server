@@ -98,4 +98,16 @@ router.get('/user/me', async (req,res) => {
     }
 })
 
+router.get('/getCheckins', (req,res) => { 
+    db.query(`SELECT description FROM checkins;`)
+        .then(checkin => {
+            console.log(checkin); // printing the checkin
+            res.send(checkin);
+
+        })
+        .catch(error => {
+           console.log(error); 
+        });
+})
+
 module.exports = router;
