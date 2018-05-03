@@ -1,7 +1,7 @@
 const readBody = require('./lib/readBody')
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const moment = require('moment');
+// const moment = require('moment');
 let {postTokens, signature} = require('./lib/tokens');
 const db = require('./db');
 const Router = require('express').Router;
@@ -61,7 +61,7 @@ router.post('/goals', (req,res) => {
                 '${goal.title}',
                 '${goal.description}',
                 '${goal.deadline}',
-                '${moment().format('L')}',
+                '${new Date().toISOString()}',
                 '${goal.punishment}'
             );
         `)
