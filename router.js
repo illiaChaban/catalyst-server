@@ -114,8 +114,12 @@ router.get('/user/me', async (req,res) => {
     try{
         let payload = jwt.verify(token, signature);
         let me = await db.one(`
-            SELECT username, userid, avatar FROM users
-            WHERE userid = '${payload.userid}';
+            SELECT users.username, users.userid, users.avatar,
+            friends.friendsArray
+            FROM users
+                JOIN friends
+                ON friends.userid = users.userid
+            WHERE users.userid = '${payload.userid}';
         `)
         res.end(JSON.stringify(me))
     } catch(err) {
