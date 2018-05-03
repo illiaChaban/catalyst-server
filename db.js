@@ -4,7 +4,7 @@ const dbConfig = {
     host: 'localhost',
     port: 5432,
     database: 'catalyst',
-    user: 'itzikshaoulian',
+    user: 'aarongross',
 };
 const db = pg(dbConfig);
 
