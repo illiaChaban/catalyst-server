@@ -53,18 +53,19 @@ router.post('/register',  (req,res) => {
 })
 
 router.post('/goals', (req,res) => {
-    readBody(req).then( goal => {
-        console.log(goal);
+    readBody(req).then( goal1 => {
+        goal = JSON.parse(goal1)
         db.query(`
             INSERT INTO goals VALUES (
-                ${goal.user.userid},
-                ${goal.titla},
-                ${goal.description},
-                ${goal.deadline},
-                ${moment().format('L')},
-                ${goal.punishment}
+                '${goal.userid}',
+                '${goal.title}',
+                '${goal.description}',
+                '${goal.deadline}',
+                '${moment().format('L')}',
+                '${goal.punishment}'
             );
         `)
+        // .catch(error)
     });
 })
 
@@ -101,7 +102,8 @@ router.post('/feed', async (req,res) => {
                 ON users.userid = goals.userid
             JOIN checkins
                 ON goals.goalid = checkins.goalid
-            WHERE ${query};
+            WHERE ${query}
+            ORDER BY checkins.created DESC;
     `)
 
     res.end(JSON.stringify(feed));
@@ -120,6 +122,30 @@ router.get('/user/me', async (req,res) => {
         console.log(err)
         res.status(401).end('Unauthorized');
     }
+})
+
+router.get('/getCheckins', (req,res) => { 
+    db.query(`SELECT description FROM checkins;`)
+        .then(checkin => {
+            console.log(checkin); // printing the checkin
+            res.send(checkin);
+
+        })
+        .catch(error => {
+           console.log(error); 
+        });
+})
+
+router.get('/getGoals', (req,res) => { 
+    db.query(`SELECT goalname FROM goals;`)
+        .then(goal => {
+            console.log(goal); // printing the goal
+            res.send(goal);
+
+        })
+        .catch(error => {
+           console.log(error); 
+        });
 })
 
 module.exports = router;
