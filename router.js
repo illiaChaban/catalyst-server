@@ -142,16 +142,32 @@ router.get('/getCheckins', (req,res) => {
         });
 })
 
-router.get('/getGoals', (req,res) => { 
-    db.query(`SELECT goalname FROM goals;`)
-        .then(goal => {
-            console.log(goal); // printing the goal
-            res.send(goal);
+// router.get('/getGoals', (req,res) => { 
+//     db.query(`
+//         SELECT goalname FROM goals
+//         ;
+//     `)
+//         .then(goal => {
+//             console.log(goal); // printing the goal
+//             res.send(goal);
 
-        })
-        .catch(error => {
-           console.log(error); 
-        });
+//         })
+//         .catch(error => {
+//            console.log(error); 
+//         });
+// })
+
+router.post('/getMyGoals', async (req,res) => {
+    let user = await readBody(req).then( req => JSON.parse(req))
+    console.log(user)
+    db.query(`
+        SELECT goalname, description,
+        deadline, created, punishment
+        FROM goals
+        WHERE goals.userid = '${user.userid}';
+
+    `).then( goals => res.end(JSON.stringify(goals)) )
+
 })
 
 module.exports = router;
