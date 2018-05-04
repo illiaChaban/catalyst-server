@@ -7,10 +7,6 @@ const db = require('./db');
 const Router = require('express').Router;
 const router = new Router();
 
-router.get('/', (req, res) => {
-    res.send('hello');
-});
-
 router.post('/users', (req, res) => {
     // let request = JSON.parse(req);
     console.log('####################')
