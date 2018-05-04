@@ -7,9 +7,9 @@ const db = require('./db');
 const Router = require('express').Router;
 const router = new Router();
 
-router.get('/', (req, res) => {
-    res.send('hello');
-});
+// router.get('/', (req, res) => {
+//     res.send('hello');
+// });
 
 router.post('/users', (req, res) => {
     // let request = JSON.parse(req);
@@ -165,11 +165,11 @@ router.post('/getMyCheckins', async (req,res) => {
 
 
 router.post('/getMyFriends', async (req,res) => {
-    let user = await readBody(req).then( req => JSON.parse(req))
+    let userId = await readBody(req).then( req => JSON.parse(req))
     db.query(`
         SELECT friends.friendsarray
         FROM friends
-        WHERE friends.userid = '${user.userid}';
+        WHERE friends.userid = '${userId}';
     `)
     .then(data => JSON.parse(data[0].friendsarray))
     .then(async (array) => {
@@ -246,6 +246,24 @@ router.post('/searchFriends',  (req,res) => {
         FROM users 
         WHERE users.username = '${username}';`)
         .then( (users) => res.end(JSON.stringify(users)))
+    })
+})
+
+router.post('/addFriend', async (req,res) => {
+    let info = await readBody(req).then( req => JSON.parse(req))
+    // console.log(newFriendsArr)
+    db.query(`
+        DELETE FROM friends 
+        WHERE userid = '${info.userid}';
+    `)
+    .then( () => {
+        db.query(`
+            INSERT INTO friends VALUES(
+                '${info.userid}',
+                '${info.friendsarray}'
+            );
+        `)
+        .then( console.log)
     })
 })
 
