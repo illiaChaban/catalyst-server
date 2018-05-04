@@ -130,17 +130,17 @@ router.get('/user/me', async (req,res) => {
     }
 })
 
-router.get('/getCheckins', (req,res) => { 
-    db.query(`SELECT description FROM checkins;`)
-        .then(checkin => {
-            console.log(checkin); // printing the checkin
-            res.send(checkin);
+// router.get('/getCheckins', (req,res) => { 
+//     db.query(`SELECT description FROM checkins;`)
+//         .then(checkin => {
+//             console.log(checkin); // printing the checkin
+//             res.send(checkin);
 
-        })
-        .catch(error => {
-           console.log(error); 
-        });
-})
+//         })
+//         .catch(error => {
+//            console.log(error); 
+//         });
+// })
 
 // router.get('/getGoals', (req,res) => { 
 //     db.query(`
@@ -159,7 +159,7 @@ router.get('/getCheckins', (req,res) => {
 
 router.post('/getMyGoals', async (req,res) => {
     let user = await readBody(req).then( req => JSON.parse(req))
-    console.log(user)
+    // console.log(user)
     db.query(`
         SELECT goalname, description,
         deadline, created, punishment
@@ -168,6 +168,25 @@ router.post('/getMyGoals', async (req,res) => {
 
     `).then( goals => res.end(JSON.stringify(goals)) )
 
+})
+
+router.post('/getMyCheckins', async (req,res) => {
+    let user = await readBody(req).then( req => JSON.parse(req));
+    db.query(`
+        SELECT
+        checkins.image, checkins.description, checkins.created
+        FROM checkins
+            JOIN goals
+                ON goals.goalid = checkins.goalid
+            WHERE goals.userid = '${user.userid}'
+            ORDER BY checkins.created DESC;
+    `)
+    .then(checkins => {
+        res.end(JSON.stringify(checkins));
+    })
+    .catch(error => {
+        console.log(error); 
+    });
 })
 
 module.exports = router;
