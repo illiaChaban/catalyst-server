@@ -193,14 +193,11 @@ router.post('/getMyCheckins', async (req,res) => {
 
 router.post('/getMyFriends', async (req,res) => {
     let user = await readBody(req).then( req => JSON.parse(req))
-    // console.log(user)
     db.query(`
         SELECT friends.friendsarray
         FROM friends
         WHERE friends.userid = '${user.userid}';
     `)
-    // .then( friends => res.end(JSON.stringify(friends)) )
-    // .then(data => console.log(data[0].friendsarray))
     .then(data => JSON.parse(data[0].friendsarray))
     .then(async (array) => {
 
@@ -234,6 +231,21 @@ router.post('/getUser', async (req, res) => {
     .then(user => {
         res.end(JSON.stringify(user))
     })
+})
+
+
+
+router.post('/addFriend',  (req,res) => {
+    readBody(req)
+    .then( req => JSON.parse(req))
+    .then( (json) => {
+        db.query(`SELECT users.email 
+        FROM users 
+        WHERE users.email = '${json.search}';`)
+        .then(console.log)
+    })
+  
+
 })
 
 module.exports = router;
