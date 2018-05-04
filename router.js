@@ -45,9 +45,11 @@ router.post('/register',  (req,res) => {
         '${hashUser.username}',
         '${hashUser.email}',
         '${hashUser.passw}'
-    );`) 
+    );`)
+        .then( () => postTokens(req,res,db))
         .catch(err => console.log(err))
         res.send('finished insert')
+        
     })
 })
 })
