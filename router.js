@@ -210,7 +210,7 @@ router.post('/getMyFriends', async (req,res) => {
     
         let feed = await db.query(`
             SELECT users.username,
-            users.avatar
+            users.avatar, users.userid
             FROM users
                 WHERE ${query};
         `)
