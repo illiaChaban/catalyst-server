@@ -166,14 +166,11 @@ router.post('/getMyCheckins', async (req,res) => {
 
 router.post('/getMyFriends', async (req,res) => {
     let user = await readBody(req).then( req => JSON.parse(req))
-    // console.log(user)
     db.query(`
         SELECT friends.friendsarray
         FROM friends
         WHERE friends.userid = '${user.userid}';
     `)
-    // .then( friends => res.end(JSON.stringify(friends)) )
-    // .then(data => console.log(data[0].friendsarray))
     .then(data => JSON.parse(data[0].friendsarray))
     .then(async (array) => {
 
@@ -210,6 +207,17 @@ router.post('/getUser', async (req, res) => {
 })
 
 
+router.post('/addFriend',  (req,res) => {
+    readBody(req)
+    .then( req => JSON.parse(req))
+    .then( (json) => {
+        db.query(`SELECT users.email 
+        FROM users 
+        WHERE users.email = '${json.search}';`)
+        .then(console.log)
+    })
+})
+  
 router.post('/postCheckin', async (req, res) => {
     let checkin = await readBody(req).then( req => JSON.parse(req));
     console.log(checkin)
@@ -226,6 +234,7 @@ router.post('/postCheckin', async (req, res) => {
     .catch(error => {
         console.log(error); 
     });
+
 })
 
 module.exports = router;
