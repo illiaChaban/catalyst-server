@@ -212,7 +212,7 @@ router.post('/getMyFriends', async (req,res) => {
             SELECT users.username,
             users.avatar
             FROM users
-                WHERE ${query}
+                WHERE ${query};
         `)
         
         res.end(JSON.stringify(feed));
