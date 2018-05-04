@@ -189,4 +189,35 @@ router.post('/getMyCheckins', async (req,res) => {
     });
 })
 
+router.post('/getMyFriends', async (req,res) => {
+    let user = await readBody(req).then( req => JSON.parse(req))
+    // console.log(user)
+    db.query(`
+        SELECT friends.friendsarray
+        FROM friends
+        WHERE friends.userid = '${user.userid}';
+    `)
+    // .then( friends => res.end(JSON.stringify(friends)) )
+    // .then(data => console.log(data[0].friendsarray))
+    .then(data => JSON.parse(data[0].friendsarray))
+    .then(async (array) => {
+
+        let query = '';
+        array.forEach( (friendId, i) => {
+            query += `users.userid = '${friendId}' `;
+            if ( i !== array.length - 1) query += 'OR ';
+        })
+    
+        let feed = await db.query(`
+            SELECT users.username,
+            users.avatar
+            FROM users
+                WHERE ${query}
+        `)
+        
+        res.end(JSON.stringify(feed));
+    })
+
+})
+
 module.exports = router;
