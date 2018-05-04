@@ -158,27 +158,28 @@ router.get('/user/me', async (req,res) => {
 // })
 
 router.post('/getMyGoals', async (req,res) => {
-    let user = await readBody(req).then( req => JSON.parse(req))
-    // console.log(user)
+    let userId = await readBody(req).then( req => JSON.parse(req))
+    console.log('goals', userId)
     db.query(`
         SELECT goalname, description,
         deadline, created, punishment
         FROM goals
-        WHERE goals.userid = '${user.userid}';
+        WHERE goals.userid = '${userId}';
 
     `).then( goals => res.end(JSON.stringify(goals)) )
 
 })
 
 router.post('/getMyCheckins', async (req,res) => {
-    let user = await readBody(req).then( req => JSON.parse(req));
+    let userId = await readBody(req).then( req => JSON.parse(req));
+    console.log('checkins', userId)
     db.query(`
         SELECT
         checkins.image, checkins.description, checkins.created
         FROM checkins
             JOIN goals
                 ON goals.goalid = checkins.goalid
-            WHERE goals.userid = '${user.userid}'
+            WHERE goals.userid = '${userId}'
             ORDER BY checkins.created DESC;
     `)
     .then(checkins => {
@@ -188,6 +189,7 @@ router.post('/getMyCheckins', async (req,res) => {
         console.log(error); 
     });
 })
+
 
 router.post('/getMyFriends', async (req,res) => {
     let user = await readBody(req).then( req => JSON.parse(req))
@@ -218,6 +220,20 @@ router.post('/getMyFriends', async (req,res) => {
         res.end(JSON.stringify(feed));
     })
 
+})
+
+
+router.post('/getUser', async (req, res) => {
+    let userId = await readBody(req).then( req => JSON.parse(req));
+    console.log('getting User', userId)
+    db.one(`
+        SELECT avatar, username, userid
+        FROM users
+        WHERE userid = '${userId}';
+    `)
+    .then(user => {
+        res.end(JSON.stringify(user))
+    })
 })
 
 module.exports = router;
