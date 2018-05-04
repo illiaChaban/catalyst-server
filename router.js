@@ -130,39 +130,12 @@ router.get('/user/me', async (req,res) => {
     }
 })
 
-// router.get('/getCheckins', (req,res) => { 
-//     db.query(`SELECT description FROM checkins;`)
-//         .then(checkin => {
-//             console.log(checkin); // printing the checkin
-//             res.send(checkin);
-
-//         })
-//         .catch(error => {
-//            console.log(error); 
-//         });
-// })
-
-// router.get('/getGoals', (req,res) => { 
-//     db.query(`
-//         SELECT goalname FROM goals
-//         ;
-//     `)
-//         .then(goal => {
-//             console.log(goal); // printing the goal
-//             res.send(goal);
-
-//         })
-//         .catch(error => {
-//            console.log(error); 
-//         });
-// })
-
 router.post('/getMyGoals', async (req,res) => {
     let userId = await readBody(req).then( req => JSON.parse(req))
     console.log('goals', userId)
     db.query(`
         SELECT goalname, description,
-        deadline, created, punishment
+        deadline, created, punishment, goalid
         FROM goals
         WHERE goals.userid = '${userId}';
 
@@ -234,7 +207,6 @@ router.post('/getUser', async (req, res) => {
 })
 
 
-
 router.post('/addFriend',  (req,res) => {
     readBody(req)
     .then( req => JSON.parse(req))
@@ -244,8 +216,26 @@ router.post('/addFriend',  (req,res) => {
         WHERE users.email = '${json.search}';`)
         .then(console.log)
     })
+})
   
+router.post('/postCheckin', async (req, res) => {
+    let checkin = await readBody(req).then( req => JSON.parse(req));
+    console.log(checkin)
+    let {goalid, image, description} = checkin;
+    db.query(`
+        INSERT INTO checkins VALUES(
+            '${goalid}',
+            '${image}',
+            '${description}',
+            '${new Date().toISOString()}'
+        );
+    `)
+    .then( () => res.end())
+    .catch(error => {
+        console.log(error); 
+    });
 
 })
 
 module.exports = router;
+
