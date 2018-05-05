@@ -236,7 +236,7 @@ router.post('/searchFriends',  (req,res) => {
     .then( (username) => {
         db.query(`SELECT userid, username, avatar 
         FROM users 
-        WHERE users.username = '${username}';`)
+        WHERE users.username ILIKE '${username}';`)
         .then( (users) => res.end(JSON.stringify(users)))
     })
 })
