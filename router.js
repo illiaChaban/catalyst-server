@@ -2,53 +2,56 @@ const readBody = require('./lib/readBody')
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 // const moment = require('moment');
-let {postTokens, signature} = require('./lib/tokens');
+let {postTokens, signature, findUserByEmail, createToken} = require('./lib/tokens');
 const db = require('./db');
 const Router = require('express').Router;
 const router = new Router();
 
 
-router.post('/users', (req, res) => {
-    // let request = JSON.parse(req);
-    console.log('####################')
-    readBody(req).then( (req) => {
-        db.query(req).then(console.log);
-        db.query('select * from users').then(console.log)
-    })
-    // res.send(request);
-    // res.send('hello')
-})
+// router.post('/users', (req, res) => {
+//     // let request = JSON.parse(req);
+//     console.log('####################')
+//     readBody(req).then( (req) => {
+//         db.query(req).then(console.log);
+//         db.query('select * from users').then(console.log)
+//     })
+//     // res.send(request);
+//     // res.send('hello')
+// })
 
 router.post('/login', async (req,res) => {
     postTokens(req, res, db)
 
 })
 
-router.post('/register',  (req,res) => {
-    readBody(req)
-    .then(data => JSON.parse(data))
-    .then(parsedData => {
-    let {avatar, username,email,passw} = parsedData
-    bcrypt.hash(passw,10, async (err, hash,) => {
-        let hashUser = {
-            avatar,
-            username,
-            email,
-            passw:hash
-        }
-        db.query(`INSERT INTO users VALUES 
-    (
-        '${hashUser.avatar}',
-        '${hashUser.username}',
-        '${hashUser.email}',
-        '${hashUser.passw}'
-    );`)
-        .then( () => postTokens(req,res,db))
-        .catch(err => console.log(err))
-        res.send('finished insert')
-        
-    })
-})
+router.post('/register', async (req,res) => {
+    let userInfo = await readBody(req).then(data => JSON.parse(data))
+    let {avatar, username,email,password} = userInfo
+    let hash = await bcrypt.hash(password,10);
+    await db.query(`
+        INSERT INTO users VALUES (
+                '${avatar}',
+                '${username}',
+                '${email}',
+                '${hash}'
+        );`)
+        .catch(err => console.log(err)) 
+    let { userid } = await db.one(`
+        SELECT userid FROM users
+        WHERE passw = '${hash}';
+    
+    `)
+    db.query(`
+        INSERT INTO friends VALUES (
+            '${userid}',
+            '${JSON.stringify([])}'
+        );
+    `)
+    // console.log('userid', userid)     
+    let user = await findUserByEmail(db, email);
+    let token = createToken(user[0]);
+        res.end(token);
+    
 })
 
 router.post('/goals', (req,res) => {
@@ -73,13 +76,19 @@ router.get('/friends', async (req, res) => {
     try{
         let { userid } = jwt.verify(token, signature);
         console.log(userid)
-        let friends = await db.one(`
+        // let friends
+        db.one(`
             SELECT friendsarray FROM friends
             WHERE userid = '${userid}';
         `)
-        res.end(friends.friendsarray)
+        .then( (friends) => {
+            console.log('friends', friends)
+            res.end(friends.friendsarray)
+        })
+
     } catch(err) {
         console.log(err)
+        res.end(JSON.stringify([]))
     }
 })
 
@@ -192,7 +201,6 @@ router.post('/getMyFriends', async (req,res) => {
 
 router.post('/getUser', async (req, res) => {
     let userId = await readBody(req).then( req => JSON.parse(req));
-    console.log('getting User', userId)
     db.one(`
         SELECT avatar, username, userid
         FROM users
@@ -203,21 +211,9 @@ router.post('/getUser', async (req, res) => {
     })
 })
 
-
-// router.post('/addFriend',  (req,res) => {
-//     readBody(req)
-//     .then( req => JSON.parse(req))
-//     .then( (json) => {
-//         db.query(`SELECT users.email 
-//         FROM users 
-//         WHERE users.email = '${json.search}';`)
-//         .then(console.log)
-//     })
-// })
   
 router.post('/postCheckin', async (req, res) => {
     let checkin = await readBody(req).then( req => JSON.parse(req));
-    console.log(checkin)
     let {goalid, image, description} = checkin;
     db.query(`
         INSERT INTO checkins VALUES(
@@ -238,10 +234,9 @@ router.post('/searchFriends',  (req,res) => {
     readBody(req)
     // .then( req => JSON.parse(req))
     .then( (username) => {
-        console.log(username)
         db.query(`SELECT userid, username, avatar 
         FROM users 
-        WHERE users.username = '${username}';`)
+        WHERE users.username ILIKE '${username}';`)
         .then( (users) => res.end(JSON.stringify(users)))
     })
 })
