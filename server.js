@@ -8,7 +8,7 @@ let router = require('./router');
 const app = express();
 // app.use(urlencoded({ extended: false }));
 app.use(cors());
-app.use('/', express.static(path.join(__dirname, 'build')))
+// app.use('/', express.static(path.join(__dirname, 'build')))
 app.use(router);
 
 const server = http.createServer(app)

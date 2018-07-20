@@ -27,9 +27,13 @@ router.post('/login', async (req,res) => {
 router.post('/register', async (req,res) => {
     let userInfo = await readBody(req).then(data => JSON.parse(data))
     let {avatar, username,email,password} = userInfo
+    if (!avatar) avatar = 'https://cdn.iconscout.com/public/images/icon/free/png-512/avatar-user-business-man-399587fe24739d5a-512x512.png';
+
     let hash = await bcrypt.hash(password,10);
     await db.query(`
-        INSERT INTO users VALUES (
+        INSERT INTO users
+        ( avatar, username, email, passw )
+        VALUES (
                 '${avatar}',
                 '${username}',
                 '${email}',
@@ -39,16 +43,21 @@ router.post('/register', async (req,res) => {
     let { userid } = await db.one(`
         SELECT userid FROM users
         WHERE passw = '${hash}';
-    
     `)
-    db.query(`
-        INSERT INTO friends VALUES (
+
+    console.log( 'USERID', typeof userid)
+
+    await db.query(`
+        INSERT INTO friends 
+        ( userid, friendsarray ) 
+        VALUES (
             '${userid}',
             '${JSON.stringify([])}'
         );
     `)
     // console.log('userid', userid)     
     let user = await findUserByEmail(db, email);
+    console.log( "USER", user)
     let token = createToken(user[0]);
         res.end(token);
     
