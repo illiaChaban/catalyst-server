@@ -2,7 +2,8 @@ const readBody = require('./lib/readBody')
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 // const moment = require('moment');
-let {postTokens, signature, findUserByEmail, createToken} = require('./lib/tokens');
+let {signature, createToken} = require('./lib/tokens');
+let findUserByEmail = require('./lib/findUserByEmail');
 const db = require('./db');
 const Router = require('express').Router;
 const router = new Router();
@@ -20,7 +21,21 @@ const router = new Router();
 // })
 
 router.post('/login', async (req,res) => {
-    postTokens(req, res, db)
+    let body = await readBody(req);
+    let creds = JSON.parse(body);
+    let { password, email  } = creds;
+    let user = await findUserByEmail(db, email);
+    let isValid;
+    console.log(user[0])
+    if (user[0]){
+      isValid = await bcrypt.compare(password, user[0].passw);
+    }
+    if (isValid) {
+      let token = createToken(user[0]);
+      res.end(token);
+    } else {
+      res.status(401).end('No token for you!');
+    }
 
 })
 
