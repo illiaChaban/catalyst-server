@@ -9,13 +9,13 @@ const Router = require('express').Router;
 const router = new Router();
 
 router.post('/login', async (req,res) => {
-    let body = await readBody(req);
-    let creds = JSON.parse(body);
+    console.log('##### TRYING TO LOG IN')
+
+    let creds = req.body;
     let { password, email  } = creds;
     let user = await findUserByEmail(db, email);
     let isValid;
 
-    console.log('##### TRYING TO LOG IN')
     console.log('##### USER IS', user[0])
 
     if (user[0]){
@@ -31,8 +31,10 @@ router.post('/login', async (req,res) => {
 })
 
 router.post('/register', async (req,res) => {
-    let userInfo = await readBody(req).then(data => JSON.parse(data))
-    let {avatar, username,email,password} = userInfo
+    console.log( '##### TRYING TO REGISTER')
+
+    let {avatar, username,email,password} = req.body
+    //default avatar
     if (!avatar) avatar = 'https://cdn.iconscout.com/public/images/icon/free/png-512/avatar-user-business-man-399587fe24739d5a-512x512.png';
 
     let hash = await bcrypt.hash(password,10);
@@ -46,12 +48,13 @@ router.post('/register', async (req,res) => {
                 '${hash}'
         );`)
         .catch(err => console.log(err)) 
+
     let { userid } = await db.one(`
         SELECT userid FROM users
         WHERE passw = '${hash}';
     `)
 
-    console.log( 'USERID', typeof userid)
+    console.log( '##### REGISTERED USERID', userid)
 
     await db.query(`
         INSERT INTO friends 
@@ -60,7 +63,7 @@ router.post('/register', async (req,res) => {
             '${userid}',
             '${JSON.stringify([])}'
         );
-    `)
+    `).catch( console.log )
     // console.log('userid', userid)     
     let user = await findUserByEmail(db, email);
     console.log( "USER", user)
@@ -70,6 +73,8 @@ router.post('/register', async (req,res) => {
 })
 
 router.get('/user/me', async (req,res) => {
+    console.log('##### GETTING USER INFO - user/me')
+
     let { authorization: token } = req.headers;
     try{
         let payload = jwt.verify(token, signature);
@@ -81,8 +86,13 @@ router.get('/user/me', async (req,res) => {
                 ON friends.userid = users.userid
             WHERE users.userid = '${payload.userid}';
         `)
+        .catch( err => {
+            console.log('##### USER/ME ERROR 1')
+            console.log(err)
+        })
         res.end(JSON.stringify(me))
     } catch(err) {
+        console.log('##### USER/ME ERROR 2')
         console.log(err)
         res.status(401).end('Unauthorized');
     }

@@ -22,20 +22,21 @@ const router = new Router();
 
 
 router.post('/goals', (req,res) => {
-    readBody(req).then( goal1 => {
-        goal = JSON.parse(goal1)
-        db.query(`
-            INSERT INTO goals VALUES (
-                '${goal.userid}',
-                '${goal.title}',
-                '${goal.description}',
-                '${goal.deadline}',
-                '${new Date().toISOString()}',
-                '${goal.punishment}'
-            );
-        `)
-        // .catch(error)
-    });
+    console.log( '#### ADDING GOAL')
+    let {userid, title, description, deadline, punishment} = req.body;
+    db.query(`
+        INSERT INTO goals
+        ( userid, goalname, description, deadline, created, punishment )
+        VALUES (
+            '${userid}',
+            '${title}',
+            '${description}',
+            '${deadline}',
+            '${new Date().toISOString()}',
+            '${punishment}'
+        );
+    `)
+    .catch(console.log)
 })
 
 router.get('/friends', async (req, res) => {
