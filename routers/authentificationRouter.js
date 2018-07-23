@@ -7,6 +7,9 @@ let findUserByEmail = require('../lib/findUserByEmail');
 const db = require('../db');
 const Router = require('express').Router;
 const router = new Router();
+const bodyParser = require('body-parser');
+
+router.use( bodyParser.json())
 
 router.post('/login', async (req,res) => {
     console.log('##### TRYING TO LOG IN')
