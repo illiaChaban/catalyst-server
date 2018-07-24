@@ -7,6 +7,7 @@ let findUserByEmail = require('../lib/findUserByEmail');
 const db = require('../db');
 const Router = require('express').Router;
 const router = new Router();
+const bodyParser = require('body-parser')
 
 
 // router.post('/users', (req, res) => {
@@ -20,13 +21,15 @@ const router = new Router();
 //     // res.send('hello')
 // })
 
+// router.use(bodyParser.json())
 
 router.post('/goals', async (req,res) => {
     console.log( '#### ADDING GOAL')
-    let {userid, title, description, deadline, punishment} = await readBody(req).then( req => JSON.parse(req));//req.body;
+    let {userid, title, description, deadline, punishment} = await readBody(req).then(JSON.parse);//req.body;
+    console.log(userid, title, description, deadline, punishment)
     db.query(`
         INSERT INTO goals
-        ( userids, goalname, description, deadline, created, punishment )
+        ( userid, goalname, description, deadline, created, punishment )
         VALUES (
             '${userid}',
             '${title}',
@@ -36,8 +39,6 @@ router.post('/goals', async (req,res) => {
             '${punishment}'
         );
     `)
-    .then( () => console.log( 'about to add a goal'))
-    .then( () => console.log( 'added a goal succesfully'))
     .catch(console.log)
 
 })
@@ -68,28 +69,34 @@ router.get('/friends', async (req, res) => {
 router.post('/feed', async (req,res) => {
     console.log( '##### GETTING REQUEST TO /feed')
 
-    let friendsArr = await readBody(req).then( req => JSON.parse(req));
+    let friendsArr = await readBody(req).then(JSON.parse);//req.body;
     
-    let query = '';
-    friendsArr.forEach( (friendId, i) => {
-        query += `users.userid = '${friendId}' `;
-        if ( i !== friendsArr.length - 1) query += 'OR ';
-    })
+    if (friendsArr.length) {
+        let query = '';
+        friendsArr.forEach( (friendId, i) => {
+            query += `users.userid = '${friendId}' `;
+            if ( i !== friendsArr.length - 1) query += 'OR ';
+        })
 
-    let feed = await db.query(`
-        SELECT goals.goalname, goals.deadline,
-        users.username, users.avatar,
-        checkins.image, checkins.description, checkins.created
-        FROM goals
-            JOIN users
-                ON users.userid = goals.userid
-            JOIN checkins
-                ON goals.goalid = checkins.goalid
-            WHERE ${query}
-            ORDER BY checkins.created DESC;
-    `)
+        let feed = await db.query(`
+            SELECT goals.goalname, goals.deadline,
+            users.username, users.avatar,
+            checkins.image, checkins.description, checkins.created
+            FROM goals
+                JOIN users
+                    ON users.userid = goals.userid
+                JOIN checkins
+                    ON goals.goalid = checkins.goalid
+                WHERE ${query}
+                ORDER BY checkins.created DESC;
+        `)
 
-    res.end(JSON.stringify(feed));
+        res.end(JSON.stringify(feed));
+    } else {
+        res.end(JSON.stringify([]))
+    }
+
+    
 })
 
 
@@ -97,7 +104,7 @@ router.post('/getMyGoals', async (req,res) => {
     console.log( '##### GETTING REQUEST TO /getMyGoals')
 
 
-    let userId = await readBody(req).then( req => JSON.parse(req))
+    let userId = await readBody(req).then(JSON.parse);//req.body
     console.log('goals', userId)
     db.query(`
         SELECT goalname, description,
@@ -112,8 +119,7 @@ router.post('/getMyGoals', async (req,res) => {
 router.post('/getMyCheckins', async (req,res) => {
     console.log( '##### GETTING REQUEST TO /getMyCheckins')
 
-
-    let userId = await readBody(req).then( req => JSON.parse(req));
+    let userId = await readBody(req).then(JSON.parse);//req.body;
     console.log('##### checkins userId', userId)
     db.query(`
         SELECT
@@ -137,37 +143,42 @@ router.post('/getMyFriends', async (req,res) => {
     console.log( '##### GETTING REQUEST TO /getMyFriends')
 
 
-    let userId = await readBody(req).then( req => JSON.parse(req))
-    db.query(`
+    let userId = await readBody(req).then(JSON.parse);//req.body
+    db.one(`
         SELECT friends.friendsarray
         FROM friends
         WHERE friends.userid = '${userId}';
     `)
-    .then(data => JSON.parse(data[0].friendsarray))
-    .then(async (array) => {
-
-        let query = '';
-        array.forEach( (friendId, i) => {
-            query += `users.userid = '${friendId}' `;
-            if ( i !== array.length - 1) query += 'OR ';
-        })
-    
-        let feed = await db.query(`
-            SELECT users.username,
-            users.avatar, users.userid
-            FROM users
-                WHERE ${query};
-        `)
+    .then(data => JSON.parse(data.friendsarray))
+    .then(async (friendsArr) => {
+        if ( friendsArr.length ) {
+            let query = '';
+            friendsArr.forEach( (friendId, i) => {
+                query += `users.userid = '${friendId}' `;
+                if ( i !== friendsArr.length - 1) query += 'OR ';
+            })
         
-        res.end(JSON.stringify(feed));
+            let feed = await db.query(`
+                SELECT users.username,
+                users.avatar, users.userid
+                FROM users
+                    WHERE ${query};
+            `)
+            
+            res.end(JSON.stringify(feed));
+        } else {
+            res.end(JSON.stringify([]))
+        }
+
     })
+    .catch( console.log )
 
 })
 
 
 router.post('/getUser', async (req, res) => {
     console.log('##### GETTING USER, /getUser')
-    let userId = await readBody(req).then( req => JSON.parse(req));//req.body;
+    let userId = await readBody(req).then(JSON.parse);//req.body;
     console.log( '##### USERID', userId)
     db.one(`
         SELECT avatar, username, userid
@@ -182,7 +193,7 @@ router.post('/getUser', async (req, res) => {
 
   
 router.post('/postCheckin', async (req, res) => {
-    let checkin = await readBody(req).then( req => JSON.parse(req));
+    let checkin = await readBody(req).then(JSON.parse);//req.body;
     let {goalid, image, description} = checkin;
     db.query(`
         INSERT INTO checkins VALUES(
@@ -217,7 +228,7 @@ router.post('/addFriend', async (req,res) => {
     console.log( '##### GETTING REQUEST TO /addFriend')
 
 
-    let info = await readBody(req).then( req => JSON.parse(req))
+    let info = await readBody(req).then(JSON.parse);//req.body
     // console.log(newFriendsArr)
     db.query(`
         DELETE FROM friends 
