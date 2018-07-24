@@ -13,7 +13,7 @@ app.use(cors());
 // app.use('/', express.static(path.join(__dirname, 'build')))
 // app.use( bodyParser.json() )
 app.use('/authentication', authentificationRouter);
-app.use(router);
+app.use('/api', router);
 
 const server = http.createServer(app)
 

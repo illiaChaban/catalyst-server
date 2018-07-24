@@ -23,6 +23,7 @@ const bodyParser = require('body-parser')
 
 // router.use(bodyParser.json())
 
+
 router.post('/goals', async (req,res) => {
     console.log( '#### ADDING GOAL')
     let {userid, title, description, deadline, punishment} = await readBody(req).then(JSON.parse);//req.body;
@@ -42,6 +43,8 @@ router.post('/goals', async (req,res) => {
     .catch(console.log)
 
 })
+
+
 
 router.get('/friends', async (req, res) => {
     console.log( '##### GETTING REQUEST TO /friends')
@@ -103,7 +106,7 @@ router.post('/feed', async (req,res) => {
 router.post('/getMyGoals', async (req,res) => {
     console.log( '##### GETTING REQUEST TO /getMyGoals')
 
-
+    console.log(req.body)
     let userId = await readBody(req).then(JSON.parse);//req.body
     console.log('goals', userId)
     db.query(`
@@ -115,6 +118,7 @@ router.post('/getMyGoals', async (req,res) => {
     `).then( goals => res.end(JSON.stringify(goals)) )
 
 })
+
 
 router.post('/getMyCheckins', async (req,res) => {
     console.log( '##### GETTING REQUEST TO /getMyCheckins')
@@ -223,6 +227,8 @@ router.post('/searchFriends',  (req,res) => {
         .then( (users) => res.end(JSON.stringify(users)))
     })
 })
+
+
 
 router.post('/addFriend', async (req,res) => {
     console.log( '##### GETTING REQUEST TO /addFriend')
