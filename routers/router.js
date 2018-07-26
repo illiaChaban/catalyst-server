@@ -190,19 +190,23 @@ router.post('/searchFriends',  (req,res) => {
 
 router.post('/addFriend', async (req,res) => {
     let info = req.body;
-
-    db.query(`
-        DELETE FROM friends 
-        WHERE userid = ${info.userid};
-    `)
-    .then( () => {
-        db.query(`
+    try {
+        await db.query(`
+            DELETE FROM friends 
+            WHERE userid = ${info.userid};
+        `)
+        await db.query(`
             INSERT INTO friends VALUES(
                 ${info.userid},
                 '${info.friendsarray}'
             );
-        `).catch( err => console.log('### ADD FRIEND ERR 1 ', err))
-    })
+        `)
+        res.end()
+
+    } catch(err) {
+        console.log('### ADD FRIEND ERR ', err)
+        res.status(500).end()
+    }
 })
 
 module.exports = router;
