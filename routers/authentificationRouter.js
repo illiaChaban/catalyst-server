@@ -1,27 +1,19 @@
-const readBody = require('../lib/readBody')
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
-// const moment = require('moment');
-let {signature, createToken} = require('../lib/tokens');
-let findUserByEmail = require('../lib/findUserByEmail');
-const db = require('../db');
-const Router = require('express').Router;
-const router = new Router();
-const bodyParser = require('body-parser');
+const jwt = require('jsonwebtoken'),
+      bcrypt = require('bcrypt'),
+      {signature, createToken} = require('../lib/tokens'),
+      findUserByEmail = require('../lib/findUserByEmail'),
+      db = require('../db'),
+      Router = require('express').Router,
+      router = new Router();
 
-router.use( bodyParser.json())
+
 
 router.post('/login', async (req,res) => {
-    console.log('##### TRYING TO LOG IN')
 
-    let creds = req.body;
-    console.log(creds)
-    let { password, email  } = creds;
+    let { password, email  } = req.body;
     let user = await findUserByEmail(db, email);
+    
     let isValid;
-
-    console.log('##### USER IS', user[0])
-
     if (user[0]){
       isValid = await bcrypt.compare(password, user[0].passw);
     }
@@ -35,13 +27,14 @@ router.post('/login', async (req,res) => {
 })
 
 router.post('/register', async (req,res) => {
-    console.log( '##### TRYING TO REGISTER')
 
     let {avatar, username,email,password} = req.body
     //default avatar
     if (!avatar) avatar = 'https://cdn.iconscout.com/public/images/icon/free/png-512/avatar-user-business-man-399587fe24739d5a-512x512.png';
 
     let hash = await bcrypt.hash(password,10);
+
+    //add new user
     await db.query(`
         INSERT INTO users
         ( avatar, username, email, passw )
@@ -53,13 +46,13 @@ router.post('/register', async (req,res) => {
         );`)
         .catch(err => console.log(err)) 
 
+    // get new user id
     let { userid } = await db.one(`
         SELECT userid FROM users
         WHERE passw = '${hash}';
     `).catch( console.log)
 
-    console.log( '##### REGISTERED USERID', userid)
-
+    // create friends array
     await db.query(`
         INSERT INTO friends 
         ( userid, friendsarray ) 
@@ -68,16 +61,13 @@ router.post('/register', async (req,res) => {
             '${JSON.stringify([])}'
         );
     `).catch( console.log )
-    // console.log('userid', userid)     
+
     let user = await findUserByEmail(db, email);
-    console.log( "USER", user)
     let token = createToken(user[0]);
-        res.end(token);
-    
+    res.end(token);
 })
 
 router.get('/user/me', async (req,res) => {
-    console.log('##### GETTING USER INFO - user/me')
 
     let { authorization: token } = req.headers;
     try{
@@ -90,13 +80,10 @@ router.get('/user/me', async (req,res) => {
                 ON friends.userid = users.userid
             WHERE users.userid = '${payload.userid}';
         `)
-        .catch( err => {
-            console.log('##### USER/ME ERROR 1')
-            console.log(err)
-        })
+        .catch( console.log)
+
         res.end(JSON.stringify(me))
     } catch(err) {
-        console.log('##### USER/ME ERROR 2')
         console.log(err)
         res.status(401).end('Unauthorized');
     }

@@ -7,31 +7,15 @@ let findUserByEmail = require('../lib/findUserByEmail');
 const db = require('../db');
 const Router = require('express').Router;
 const router = new Router();
-const bodyParser = require('body-parser')
 
-
-// router.post('/users', (req, res) => {
-//     // let request = JSON.parse(req);
-//     console.log('####################')
-//     readBody(req).then( (req) => {
-//         db.query(req).then(console.log);
-//         db.query('select * from users').then(console.log)
-//     })
-//     // res.send(request);
-//     // res.send('hello')
-// })
-
-router.use(bodyParser.json())
-router.use(bodyParser.text())
 
 
 router.post('/goals', async (req,res) => {
     console.log( '#### ADDING GOAL')
 
-    // let {userid, title, description, deadline, punishment} = await readBody(req).then(JSON.parse);
     let {userid, title, description, deadline, punishment} = req.body;
 
-    console.log(userid, title, description, deadline, punishment)
+    console.log(req.body)
     db.query(`
         INSERT INTO goals
         ( userid, goalname, description, deadline, created, punishment )

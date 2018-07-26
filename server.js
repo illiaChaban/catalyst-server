@@ -11,7 +11,9 @@ const app = express();
 // app.use(urlencoded({ extended: false }));
 app.use(cors());
 // app.use('/', express.static(path.join(__dirname, 'build')))
-// app.use( bodyParser.json() )
+app.use( bodyParser.json() )
+app.use( bodyParser.text() )
+
 app.use('/authentication', authentificationRouter);
 app.use('/api', router);
 
