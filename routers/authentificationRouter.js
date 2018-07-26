@@ -15,6 +15,7 @@ router.post('/login', async (req,res) => {
     console.log('##### TRYING TO LOG IN')
 
     let creds = req.body;
+    console.log(creds)
     let { password, email  } = creds;
     let user = await findUserByEmail(db, email);
     let isValid;
@@ -55,7 +56,7 @@ router.post('/register', async (req,res) => {
     let { userid } = await db.one(`
         SELECT userid FROM users
         WHERE passw = '${hash}';
-    `)
+    `).catch( console.log)
 
     console.log( '##### REGISTERED USERID', userid)
 
