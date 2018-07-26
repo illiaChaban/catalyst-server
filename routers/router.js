@@ -1,21 +1,14 @@
-const readBody = require('../lib/readBody')
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
-// const moment = require('moment');
-let {signature, createToken} = require('../lib/tokens');
-let findUserByEmail = require('../lib/findUserByEmail');
-const db = require('../db');
-const Router = require('express').Router;
-const router = new Router();
+const jwt = require('jsonwebtoken'),
+      {signature} = require('../lib/tokens'),
+      db = require('../db'),
+      Router = require('express').Router,
+      router = new Router();
 
-
+      
 
 router.post('/goals', async (req,res) => {
-    console.log( '#### ADDING GOAL')
-
     let {userid, title, description, deadline, punishment} = req.body;
 
-    console.log(req.body)
     db.query(`
         INSERT INTO goals
         ( userid, goalname, description, deadline, created, punishment )
@@ -30,41 +23,33 @@ router.post('/goals', async (req,res) => {
     `)
     .then( () => res.end() )
     .catch( err => {
-        console.log(err)
+        console.log('#### ADD GOAL ERROR', err)
         res.status(400).end()
     })
 
 })
 
 
-
 router.get('/friends', async (req, res) => {
-    console.log( '##### GETTING REQUEST TO /friends')
-
     let { authorization: token } = req.headers;
     try{
         let { userid } = jwt.verify(token, signature);
-        console.log(userid)
-        // let friends
         db.one(`
             SELECT friendsarray FROM friends
             WHERE userid = ${userid};
         `)
         .then( (friends) => {
-            console.log('friends', friends)
             res.end(friends.friendsarray)
         })
 
     } catch(err) {
-        console.log(err)
-        res.end(JSON.stringify([]))
+        console.log('##### GETTING FRIENDS ERR', err)
+        res.status(400).end('Unauthorized')
     }
 })
 
-router.post('/feed', async (req,res) => {
-    console.log( '##### GETTING REQUEST TO /feed')
 
-    // let friendsArr = await readBody(req).then(JSON.parse);
+router.post('/feed', async (req,res) => {
     let friendsArr = req.body;
     
     if (friendsArr.length) {
@@ -91,19 +76,12 @@ router.post('/feed', async (req,res) => {
     } else {
         res.end(JSON.stringify([]))
     }
-
-    
 })
 
 
-
 router.post('/getMyGoals', async (req,res) => {
-    console.log( '##### GETTING REQUEST TO /getMyGoals')
-
-    // let userId = await readBody(req).then(JSON.parse);
     let userId = req.body;
 
-    console.log('goals', userId)
     db.query(`
         SELECT goalname, description,
         deadline, created, punishment, goalid
@@ -112,19 +90,13 @@ router.post('/getMyGoals', async (req,res) => {
 
     `)
     .then( goals => res.end(JSON.stringify(goals)) )
-    .catch( console.log)
-
+    .catch( err => console.log('### GETTING MY GOALS ERR', err))
 })
-// router.use( bodyParser.json());
 
 
 router.post('/getMyCheckins', async (req,res) => {
-    console.log( '##### GETTING REQUEST TO /getMyCheckins')
-
-    // let userId = await readBody(req).then(JSON.parse);
     let userId = req.body;
 
-    console.log('##### checkins userId', userId)
     db.query(`
         SELECT
         checkins.image, checkins.description, checkins.created
@@ -134,20 +106,12 @@ router.post('/getMyCheckins', async (req,res) => {
             WHERE goals.userid = ${userId}
             ORDER BY checkins.created DESC;
     `)
-    .then(checkins => {
-        res.end(JSON.stringify(checkins));
-    })
-    .catch(error => {
-        console.log(error); 
-    });
+    .then(checkins => res.end(JSON.stringify(checkins)))
+    .catch(err => console.log('### GET MY CHECKINS ERR', err));
 })
 
 
 router.post('/getMyFriends', async (req,res) => {
-    console.log( '##### GETTING REQUEST TO /getMyFriends')
-
-
-    // let userId = await readBody(req).then(JSON.parse);
     let userId = req.body;
 
     db.one(`
@@ -177,36 +141,25 @@ router.post('/getMyFriends', async (req,res) => {
         }
 
     })
-    .catch( console.log )
-
+    .catch( err => console.log('### GET MY FRIENDS ERR', err) )
 })
 
 
 router.post('/getUser', async (req, res) => {
-    console.log('##### GETTING USER, /getUser')
-
-    // let userId = await readBody(req).then(JSON.parse);
     let userId = req.body;
 
-    console.log( '##### USERID', userId)
     db.one(`
         SELECT avatar, username, userid
         FROM users
         WHERE userid = ${userId};
     `)
-    .then(user => {
-        console.log(' ##### /getUser, SENDING USER', user)
-        res.end(JSON.stringify(user))
-    })
+    .then(user => res.end(JSON.stringify(user)))
+    .catch( err => console.log('### GET USER ERR', err))
 })
 
   
 router.post('/postCheckin', async (req, res) => {
-
-    // let checkin = await readBody(req).then(JSON.parse);
-    let checkin = req.body;
-
-    let {goalid, image, description} = checkin;
+    let { goalid, image, description } = req.body;
     db.query(`
         INSERT INTO checkins VALUES(
             ${goalid},
@@ -217,35 +170,27 @@ router.post('/postCheckin', async (req, res) => {
     `)
     .then( () => res.end())
     .catch(error => {
-        console.log(error); 
+        console.log('### POST CHECKING ERR',error); 
+        res.status(500).end()
     });
 
 })
 
 router.post('/searchFriends',  (req,res) => {
-    console.log( '##### GETTING REQUEST TO /searchFriends')
-
-
     let username = req.body
 
     db.query(`SELECT userid, username, avatar 
     FROM users 
     WHERE users.username ILIKE '${username}';`)
     .then( (users) => res.end(JSON.stringify(users)))
-    .catch(console.log)
+    .catch( err => console.log('### SEARCH FRIENDS ERR', err))
 })
 
 
 
 router.post('/addFriend', async (req,res) => {
-    console.log( '##### GETTING REQUEST TO /addFriend')
-
-
-    // let info = await readBody(req).then(JSON.parse);
-
     let info = req.body;
 
-    // console.log(newFriendsArr)
     db.query(`
         DELETE FROM friends 
         WHERE userid = ${info.userid};
@@ -256,8 +201,7 @@ router.post('/addFriend', async (req,res) => {
                 ${info.userid},
                 '${info.friendsarray}'
             );
-        `)
-        .then( console.log)
+        `).catch( err => console.log('### ADD FRIEND ERR 1 ', err))
     })
 })
 

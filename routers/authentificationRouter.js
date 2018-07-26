@@ -68,6 +68,7 @@ router.post('/register', async (req,res) => {
 })
 
 router.get('/user/me', async (req,res) => {
+    console.log('#### GETTING USER INFO /user/me')
 
     let { authorization: token } = req.headers;
     try{
