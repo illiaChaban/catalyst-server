@@ -1,21 +1,19 @@
-const express = require('express');
-const http = require('http');
-const cors = require('cors');
-const path = require('path');
-let router = require('./routers/router');
-let authentificationRouter = require('./routers/authentificationRouter');
-// const urlencoded = require('body-parser').urlencoded;
-const bodyParser = require('body-parser');
+const express = require('express'),
+      http = require('http'),
+      cors = require('cors'),
+      path = require('path'),
+      bodyParser = require('body-parser'),
+      mainRouter = require('./routers/mainRouter'),
+      authentificationRouter = require('./routers/authentificationRouter');
 
 const app = express();
-// app.use(urlencoded({ extended: false }));
 app.use(cors());
 // app.use('/', express.static(path.join(__dirname, 'build')))
 app.use( bodyParser.json() )
 app.use( bodyParser.text() )
 
 app.use('/authentication', authentificationRouter);
-app.use('/api', router);
+app.use('/api', mainRouter);
 
 const server = http.createServer(app)
 

@@ -161,7 +161,9 @@ router.post('/getUser', async (req, res) => {
 router.post('/postCheckin', async (req, res) => {
     let { goalid, image, description } = req.body;
     db.query(`
-        INSERT INTO checkins VALUES(
+        INSERT INTO checkins 
+        ( goalid, image, description, created )
+        VALUES(
             ${goalid},
             '${image}',
             '${description}',
