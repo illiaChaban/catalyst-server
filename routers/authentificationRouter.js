@@ -34,8 +34,13 @@ router.post('/register', async (req,res) => {
 
     let hash = await bcrypt.hash(password,10);
 
-    //add new user
-    await db.query(`
+    let [user] = await findUserByEmail(db, email);
+    if (user) {
+        res.status(400).end('this email has been used')
+    } else {
+
+        //add new user
+        await db.query(`
         INSERT INTO users
         ( avatar, username, email, passw )
         VALUES (
@@ -46,25 +51,30 @@ router.post('/register', async (req,res) => {
         );`)
         .catch(err => console.log(err)) 
 
-    // get new user id
-    let { userid } = await db.one(`
+        // get new user id
+        let { userid } = await db.one(`
         SELECT userid FROM users
         WHERE passw = '${hash}';
-    `).catch( console.log)
+        `).catch( console.log)
 
-    // create friends array
-    await db.query(`
+        // create friends array
+        await db.query(`
         INSERT INTO friends 
         ( userid, friendsarray ) 
         VALUES (
             '${userid}',
             '${JSON.stringify([])}'
         );
-    `).catch( console.log )
+        `).catch( console.log )
 
-    let user = await findUserByEmail(db, email);
-    let token = createToken(user[0]);
-    res.end(token);
+        let [createdUser] = await findUserByEmail(db, email);
+        let token = createToken(createdUser);
+        res.end(token);
+    }
+
+
+
+    
 })
 
 router.get('/user/me', async (req,res) => {

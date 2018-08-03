@@ -8,7 +8,7 @@ const jwt = require('jsonwebtoken'),
 
 router.post('/goals', async (req,res) => {
     let {userid, title, description, deadline, punishment} = req.body;
-
+    console.log(punishment)
     db.query(`
         INSERT INTO goals
         ( userid, goalname, description, deadline, created, punishment )
@@ -183,7 +183,7 @@ router.post('/searchFriends',  (req,res) => {
 
     db.query(`SELECT userid, username, avatar 
     FROM users 
-    WHERE users.username ILIKE '${username}';`)
+    WHERE users.username ILIKE '%${username}%';`)
     .then( (users) => res.end(JSON.stringify(users)))
     .catch( err => console.log('### SEARCH FRIENDS ERR', err))
 })
