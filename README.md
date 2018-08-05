@@ -1,5 +1,5 @@
 # Catalyst - back end
-[check out our front end](https://github.com/PlantedDC/planted-front)
+[check out our front end](https://github.com/illiaChaban/Catalyst)
 
 
 ## Overview:
