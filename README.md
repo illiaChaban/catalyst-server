@@ -5,6 +5,8 @@
 ## Overview:
 Motivational app for people that are lacking that extra push. Group of close friends post their goals that they want to commit to. Your friends vote for a ridiculous punishment for you if you don’t follow through. You have to ‘check-in’ to prove that you actually doing the work, else get punished!
 
+##### ____Mobile first
+
 #### Watch demo:
 
 <a href="https://www.youtube.com/watch?v=hNMJl7z7fHQ&t=0s" target="_blank">
