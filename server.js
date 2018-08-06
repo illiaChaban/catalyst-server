@@ -17,5 +17,6 @@ app.use('/api', mainRouter);
 
 const server = http.createServer(app)
 
-console.log('HTTP server running at http://localhost:5000');
-server.listen(5000);
+const port = process.env.PORT || 5000;
+console.log(`HTTP server running at http://localhost:${port}`);
+server.listen(port);
