@@ -1,10 +1,14 @@
 const pg = require('pg-promise')();
 require( 'dotenv' ).config();
 
-const db = pg(process.env.DATABASE_URL);
+const dbConfig = {
+    host: 'localhost',
+    port: 5432,
+    database: 'catalyst',
+    // username: process.env.USER,
+    // password: process.env.PASSWORD,
+}
 
-db.query(`
-    select * from users;
-`).then(console.log)
+const db = pg(dbConfig);
 
 module.exports = db;

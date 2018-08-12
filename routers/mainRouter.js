@@ -190,7 +190,7 @@ router.post('/searchFriends',  (req,res) => {
 
 
 
-router.post('/addFriend', async (req,res) => {
+router.post('/updateFriends', async (req,res) => {
     let info = req.body;
     try {
         await db.query(`
